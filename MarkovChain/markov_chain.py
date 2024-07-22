@@ -1,4 +1,4 @@
-train_data = 'markov_chain.txt'
+train_data = 'MarkovChain\markov_chain.txt'
 
 first_possible_words = {}
 second_possible_words = {}
@@ -20,12 +20,14 @@ def get_next_probability(given_list):   #returns dictionary
 
 def trainMarkovModel():
     for line in open(train_data):
+        # split each letter in a line -> put in a list
         tokens = line.rstrip().lower().split()
+        #get list length
         tokens_length = len(tokens)
         for i in range(tokens_length):
-            token = tokens[i]
-            if i == 0:
-                first_possible_words[token] = first_possible_words.get(token, 0) + 1
+            token = tokens[i] # get a letter from the list
+            if i == 0: #if it's the first letter
+                first_possible_words[token] = first_possible_words.get(token, 0) + 1 # first_possible_word is 0 if the first letter isn't in the token list???
             else:
                 prev_token = tokens[i - 1]
                 if i == tokens_length - 1:
@@ -63,29 +65,30 @@ def next_word(tpl):
 trainMarkovModel()  #generate first, second words list and transitions
 
 ########## demo code below ################
-print("Usage: start typing.. program will suggest words. Press tab to chose the first suggestion or keep typing\n")
+if __name__ == '__main__': 
+    print("Usage: start typing.. program will suggest words. Press tab to chose the first suggestion or keep typing\n")
 
-import msvcrt   #use of mscvrt to get character from user on real time without pressing enter
-c=''
-sent=''
-last_suggestion=[]
-while(c != b'\r'):  #stop when user preses enter
-    if(c != b'\t'): #if previous character was tab, then after autocompletion dont wait for user inpput.. just show suggestions
-        c=msvcrt.getch()
-    else:
-        c = b' '
-    if(c != b'\t'): #dont print tab etc
-        print(str(c.decode('utf-8')), end='', flush=True)
-    sent = sent + str(c.decode('utf-8'))  #create word on space
-    if(c == b' '):
-        tkns = sent.split()
-        if(len(tkns) < 2):  #only first space encountered yet
-            last_suggestion = next_word(tkns[0].lower())
-            print(last_suggestion, end='  ', flush=True)
-        else: #send a tuple
-            last_suggestion = next_word((tkns[-2].lower(), tkns[-1].lower()))
-            print(last_suggestion, end='  ', flush=True)
-    if (c == b'\t' and len(last_suggestion) > 0):   #print last suggestion on tab
-        print(last_suggestion[0], end='  ', flush=True)
-        sent = sent + " " + last_suggestion[0]
- 
+    import msvcrt   #use of mscvrt to get character from user on real time without pressing enter
+    c=''
+    sent=''
+    last_suggestion=[]
+    while(c != b'\r'):  #stop when user preses enter
+        if(c != b'\t'): #if previous character was tab, then after autocompletion dont wait for user inpput.. just show suggestions
+            c=msvcrt.getch()
+        else:
+            c = b' '
+        if(c != b'\t'): #dont print tab etc
+            print(str(c.decode('utf-8')), end='', flush=True)
+        sent = sent + str(c.decode('utf-8'))  #create word on space
+        if(c == b' '):
+            tkns = sent.split()
+            if(len(tkns) < 2):  #only first space encountered yet
+                last_suggestion = next_word(tkns[0].lower())
+                print(last_suggestion, end='  ', flush=True)
+            else: #send a tuple
+                last_suggestion = next_word((tkns[-2].lower(), tkns[-1].lower()))
+                print(last_suggestion, end='  ', flush=True)
+        if (c == b'\t' and len(last_suggestion) > 0):   #print last suggestion on tab
+            print(last_suggestion[0], end='  ', flush=True)
+            sent = sent + " " + last_suggestion[0]
+    

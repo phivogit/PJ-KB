@@ -4,6 +4,7 @@ from tkinter import messagebox
 from sys import exit as end
 from os import system
 import keyboard
+import time
 
 class VKeyboard:
     def __init__(self, root=Tk()):
@@ -17,6 +18,8 @@ class VKeyboard:
         self.darkred = "#591717"
         self.red = "#822626"
         self.bgColor = '#dfe29e'
+        self.suggestionsColor1 = '#dfffbd' 
+        self.suggestionsColor2 = '#f2bdff'
         
         self.root = root
         self.root.configure(bg=self.bgColor)
@@ -100,6 +103,26 @@ class VKeyboard:
         # spl_key_pressed is True if ALT, CTRL, SHIFT or WIN are held down using right click
         # if it is False, the 4 mentioned keys get released on clicking any other key
         self.spl_key_pressed = False
+        
+        #   ROW 0 - Display pending text
+        keyframetext = Frame(self.root, borderwidth=10, bg=self.bgColor)
+        keyframetext.rowconfigure(0, weight=1)
+        keyframetext.columnconfigure(0, weight=1)
+        self.sendButton = Button(keyframetext, text = 'SEND', command= self.send_text)
+        self.sendButton.grid(row=0, column=1, sticky="nsew")
+        self.textbox = Text(keyframetext, font=self.keyfont, wrap="word", height=4)
+        self.textbox.grid(row=0, column=0, sticky="nsew")
+        keyframetext.grid(row=0, column=0, columnspan=10, sticky="nsew")
+        #   ROW 1
+        frameSuggestions = Frame(self.root, borderwidth = 10, bg = self.suggestionsColor1)
+        frameSuggestions.rowconfigure(0, weight = 1)
+        frameSuggestions.columnconfigure(0, weight = 1)
+        self.suggestion1 = Button(frameSuggestions, bg = self.suggestionsColor2, text = ' ')
+        self.suggestion2 = Button(frameSuggestions, bg = self.suggestionsColor2, text = ' ')
+        self.suggestion3 = Button(frameSuggestions, bg = self.suggestionsColor2, text = ' ')
+        self.suggestion1.grid(row = 0, column = 0, sticky = 'nsew')
+        self.suggestion2.grid(row = 0, column = 1, sticky = 'nsew')
+        self.suggestion3.grid(row = 0, column = 2, sticky = 'nsew')
         
         #   ROW 2
 
@@ -337,8 +360,6 @@ class VKeyboard:
                 self.row7buttons[ind].config(text="Alt")
             elif key == "alt gr":
                 self.row7buttons[ind].config(text="Alt")
-            elif key == ":)":
-                self.row7buttons[ind].config(text=key, width=4, bg=self.red, activebackground=self.darkred, command=self.donothing)
             else:
                 self.row7buttons[ind].config(text=key.title())
 
@@ -469,6 +490,12 @@ class VKeyboard:
 
     # an exception to get the symbols ? and _ from the keyboard module's virtual hotkeys
     # "SHIFT+-" or "SHIFT+/" don't work :/
+    def send_text(self):
+        self.root.withdraw()
+        time.sleep(0.1)
+        self.root.after(1, keyboard.write(self.textbox.get(1.0, "end-1c")))
+        self.root.after(5, self.root.wm_deiconify())
+        
     def quest_press(self, x):
         if self.row6buttons[0].cget('relief') == SUNKEN:
             if x == "-":
@@ -608,10 +635,8 @@ class VKeyboard:
 
     # function to press and release keys
     def vpresskey(self, x):
-        self.root.unbind("<Unmap>", self.unmap_bind)
-        self.root.withdraw()
-        self.root.after(1, keyboard.send(x))
-        self.root.after(5, self.root.wm_deiconify())
+        self.textbox.focus_set()
+        keyboard.send(x)
 
         if not self.spl_key_pressed:
             self.rel_shifts()
@@ -720,7 +745,7 @@ class VKeyboard:
         settings_window = Toplevel()
         settings_window.geometry(f'400x344+{int(self.user_scr_width / 2) - 200}+{int(self.user_scr_height / 2) - 200}')
 
-        settings_window.title("Virtual KeyBoard Settings")
+        settings_window.title("KeyBoard Settings")
         settings_window.resizable(False, False)
         settings_window.config(bg=self.black)
         settings_window.overrideredirect(True)
