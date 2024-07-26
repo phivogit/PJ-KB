@@ -5,6 +5,7 @@ from sys import exit as end
 from os import system
 import keyboard
 import time
+from MarkovChain.markov_chain import *
 
 class VKeyboard:
     def __init__(self, root=Tk()):
@@ -105,24 +106,31 @@ class VKeyboard:
         self.spl_key_pressed = False
         
         #   ROW 0 - Display pending text
-        keyframetext = Frame(self.root, borderwidth=10, bg=self.bgColor)
+        keyframetext = Frame(self.root, borderwidth=10, bg=self.bgColor, height = 1)
         keyframetext.rowconfigure(0, weight=1)
         keyframetext.columnconfigure(0, weight=1)
         self.sendButton = Button(keyframetext, text = 'SEND', command= self.send_text)
         self.sendButton.grid(row=0, column=1, sticky="nsew")
         self.textbox = Text(keyframetext, font=self.keyfont, wrap="word", height=4)
         self.textbox.grid(row=0, column=0, sticky="nsew")
-        keyframetext.grid(row=0, column=0, columnspan=10, sticky="nsew")
+        keyframetext.grid(row=0, column=0, columnspan=8, sticky="nsew")
         #   ROW 1
-        frameSuggestions = Frame(self.root, borderwidth = 10, bg = self.suggestionsColor1)
+        frameSuggestions = Frame(self.root, borderwidth = 1, bg = self.suggestionsColor1)
         frameSuggestions.rowconfigure(0, weight = 1)
         frameSuggestions.columnconfigure(0, weight = 1)
-        self.suggestion1 = Button(frameSuggestions, bg = self.suggestionsColor2, text = ' ')
-        self.suggestion2 = Button(frameSuggestions, bg = self.suggestionsColor2, text = ' ')
-        self.suggestion3 = Button(frameSuggestions, bg = self.suggestionsColor2, text = ' ')
+        frameSuggestions.rowconfigure(0, weight=1)
+        for i in range(3):
+            frameSuggestions.columnconfigure(i, weight=1)
+        self.suggestionHeight = 3
+        self.suggestion1 = Button(frameSuggestions, bg = self.suggestionsColor2, text = ' ', height = self.suggestionHeight)
+        self.suggestion2 = Button(frameSuggestions, bg = self.suggestionsColor2, text = ' ', height = self.suggestionHeight)
+        self.suggestion3 = Button(frameSuggestions, bg = self.suggestionsColor2, text = ' ', height = self.suggestionHeight)
+        
         self.suggestion1.grid(row = 0, column = 0, sticky = 'nsew')
         self.suggestion2.grid(row = 0, column = 1, sticky = 'nsew')
         self.suggestion3.grid(row = 0, column = 2, sticky = 'nsew')
+        
+        frameSuggestions.grid(row = 1, column = 0, columnspan = 12, sticky = 'nsew')
         
         #   ROW 2
 
@@ -137,7 +145,7 @@ class VKeyboard:
             appendrow2(Button(
                 keyframe1,
                 font=self.keyfont,
-                border=7,
+                border=5,
                 bg=self.black,
                 activebackground=self.darkblue,
                 activeforeground="#bababa",
@@ -172,7 +180,7 @@ class VKeyboard:
             appendrow3(Button(
                 keyframe2,
                 font=self.keyfont,
-                border=7,
+                border=5,
                 bg=self.black,
                 activebackground=self.darkblue,
                 activeforeground="#bababa",
@@ -217,7 +225,7 @@ class VKeyboard:
             appendrow4(Button(
                 keyframe3,
                 font=self.keyfont,
-                border=7,
+                border=5,
                 bg=self.black,
                 activebackground=self.darkblue,
                 activeforeground="#bababa",
@@ -253,7 +261,7 @@ class VKeyboard:
             appendrow5(Button(
                 keyframe4,
                 font=self.keyfont,
-                border=7,
+                border=5,
                 bg=self.black,
                 activebackground=self.darkblue,
                 activeforeground="#bababa",
@@ -290,7 +298,7 @@ class VKeyboard:
             appendrow6(Button(
                 keyframe5,
                 font=self.keyfont,
-                border=7,
+                border=5,
                 bg=self.black,
                 activebackground=self.darkblue,
                 activeforeground="#bababa",
@@ -333,7 +341,7 @@ class VKeyboard:
             appendrow7(Button(
                 keyframe6,
                 font=self.keyfont,
-                border=7,
+                border=5,
                 bg=self.black,
                 activebackground=self.darkblue,
                 activeforeground="#bababa",
@@ -480,13 +488,13 @@ class VKeyboard:
         )
         self.settings_button.grid(row=0, column=11, padx=2, sticky="NSEW")
 
-        keyframe1.grid(row=1, sticky="NSEW", padx=9, pady=6)
-        keyframe2.grid(row=2, sticky="NSEW", padx=9)
-        keyframe3.grid(row=3, sticky="NSEW", padx=9)
-        keyframe4.grid(row=3, sticky="NSEW", padx=9)
-        keyframe5.grid(row=4, sticky="NSEW", padx=9)
-        keyframe6.grid(row=6, padx=9, sticky="NSEW")
-        infoframe7.grid(row=7, padx=9, pady=5, sticky="NSEW")
+        keyframe1.grid(row=2, sticky="NSEW", padx=9, pady=6)
+        keyframe2.grid(row=3, sticky="NSEW", padx=9)
+        keyframe3.grid(row=4, sticky="NSEW", padx=9)
+        keyframe4.grid(row=5, sticky="NSEW", padx=9)
+        keyframe5.grid(row=6, sticky="NSEW", padx=9)
+        keyframe6.grid(row=7, padx=9, sticky="NSEW")
+        infoframe7.grid(row=8, padx=9, pady=5, sticky="NSEW")
 
     # an exception to get the symbols ? and _ from the keyboard module's virtual hotkeys
     # "SHIFT+-" or "SHIFT+/" don't work :/
@@ -632,11 +640,48 @@ class VKeyboard:
             bg=self.darkblue,
             fg="#bababa",
             activeforeground="white")
-
+    def doNothing(self):
+        #HAHAHAHAHAHAHAHAHA
+        pass
+    def clearSG(self):
+        for ind in range(0,3):
+            self.suggestion2.configure(text = ' ', command = self.doNothing())
+    
+    def getSG(self):
+        self.ehehe = self.textbox.get(1.0, "end-1c")
+        if len(self.ehehe) < 2:
+            if self.ehehe != "":
+                self.suggestions = next_word(self.ehehe[0].lower())
+            else:
+                self.suggestions = [' ', ' ', ' ']
+            if len(self.suggestions) <1:
+                self.clearSG()
+            else:
+                self.suggestion2.configure(text = self.suggestions[1], command = lambda sgt = self.suggestions[1]: self.sendSG(sgt))
+                self.suggestion1.configure(text = self.suggestions[0], command = lambda sgt = self.suggestions[0]: self.sendSG(sgt))
+                self.suggestion3.configure(text = self.suggestions[2], command = lambda sgt = self.suggestions[2]: self.sendSG(sgt))
+        else:
+            self.suggestions = next_word((self.ehehe[-2].lower(), self.ehehe[-1].lower()))
+            if len(self.suggestions) <1:
+                self.clearSG()
+            else:
+                self.suggestion2.configure(text = self.suggestions[1], command = lambda sgt = self.suggestions[1]: self.sendSG(sgt))
+                self.suggestion1.configure(text = self.suggestions[0], command = lambda sgt = self.suggestions[0]: self.sendSG(sgt))
+                self.suggestion3.configure(text = self.suggestions[2], command = lambda sgt = self.suggestions[2]: self.sendSG(sgt))
+            
+    def sendSG(self, sg):
+        self.textbox.focus_set()
+        if self.textbox.get(1.0, "end-1c")[-1] != ' ':
+            self.bucket = ' ' + sg + ' '
+        else:
+            self.bucket = sg + ' '
+        keyboard.write(self.bucket)
+        self.getSG()
     # function to press and release keys
     def vpresskey(self, x):
         self.textbox.focus_set()
         keyboard.send(x)
+        self.getSG()
 
         if not self.spl_key_pressed:
             self.rel_shifts()
