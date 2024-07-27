@@ -93,13 +93,15 @@ class VKeyboard:
 
         # Create fonts acc to resolution
         if self.user_scr_width < 1600:
+            self.textfont = font.Font(family="Calibri", size=15, weight='normal')
             self.keyfont = font.Font(family="Calibri", size=10, weight='bold')
-            self.bottomfont = font.Font(family='Calibri', size=11, weight='bold')
-            self.neetfont = font.Font(family='Lucida Handwriting', size=8, weight='normal')
+            self.bottomfont = font.Font(family='Calibri', size=9, weight='bold')
+            self.neetfont = font.Font(family='Lucida Handwriting', size=7, weight='normal')
         else:
-            self.keyfont = font.Font(family="Calibri", size=13, weight='bold')
-            self.bottomfont = font.Font(family='Calibri', size=13, weight='bold')
-            self.neetfont = font.Font(family='Lucida Handwriting', size=10, weight='normal')
+            self.textfont = font.Font(family="Calibri", size=15, weight='normal')
+            self.keyfont = font.Font(family="Calibri", size=11, weight='bold')
+            self.bottomfont = font.Font(family='Calibri', size=10, weight='bold')
+            self.neetfont = font.Font(family='Lucida Handwriting', size=9, weight='normal')
 
         # spl_key_pressed is True if ALT, CTRL, SHIFT or WIN are held down using right click
         # if it is False, the 4 mentioned keys get released on clicking any other key
@@ -111,7 +113,7 @@ class VKeyboard:
         keyframetext.columnconfigure(0, weight=1)
         self.sendButton = Button(keyframetext, text = 'SEND', command= self.send_text)
         self.sendButton.grid(row=0, column=1, sticky="nsew")
-        self.textbox = Text(keyframetext, font=self.keyfont, wrap="word", height=4)
+        self.textbox = Text(keyframetext, font=self.textfont, wrap="word", height=2)
         self.textbox.grid(row=0, column=0, sticky="nsew")
         keyframetext.grid(row=0, column=0, columnspan=8, sticky="nsew")
         #   ROW 1
@@ -640,48 +642,68 @@ class VKeyboard:
             bg=self.darkblue,
             fg="#bababa",
             activeforeground="white")
+    ## ------------------------------------------------------------------------------------------------
     def doNothing(self):
-        #HAHAHAHAHAHAHAHAHA
+        '''do nothing'''
         pass
-    def clearSG(self):
-        for ind in range(0,3):
-            self.suggestion2.configure(text = ' ', command = self.doNothing())
     
-    def getSG(self):
-        self.ehehe = self.textbox.get(1.0, "end-1c")
-        if len(self.ehehe) < 2:
-            if self.ehehe != "":
-                self.suggestions = next_word(self.ehehe[0].lower())
-            else:
-                self.suggestions = [' ', ' ', ' ']
-            if len(self.suggestions) <1:
-                self.clearSG()
-            else:
-                self.suggestion2.configure(text = self.suggestions[1], command = lambda sgt = self.suggestions[1]: self.sendSG(sgt))
-                self.suggestion1.configure(text = self.suggestions[0], command = lambda sgt = self.suggestions[0]: self.sendSG(sgt))
-                self.suggestion3.configure(text = self.suggestions[2], command = lambda sgt = self.suggestions[2]: self.sendSG(sgt))
+    def clearSG(self):
+        '''Clear The suggestions from the buttons. Takes no parameter'''
+        self.suggestion1.configure(text = '', command = self.doNothing)
+        self.suggestion2.configure(text = '', command = self.doNothing)
+        self.suggestion3.configure(text = '', command = self.doNothing)
+    
+    def getSG(self, lastSG = ''):
+        '''Return the suggestions list. Example: ['am', 'living', 'study']'''
+        print(f"LastSG: {lastSG}")
+        self.content = self.textbox.get(1.0, "end-1c").rstrip() + ' ' + lastSG 
+        print(f"content: {self.content}")
+        if len(self.content.split()) < 2:
+            self.suggestions = next_word(self.content.lower().rstrip())
         else:
-            self.suggestions = next_word((self.ehehe[-2].lower(), self.ehehe[-1].lower()))
-            if len(self.suggestions) <1:
-                self.clearSG()
-            else:
-                self.suggestion2.configure(text = self.suggestions[1], command = lambda sgt = self.suggestions[1]: self.sendSG(sgt))
-                self.suggestion1.configure(text = self.suggestions[0], command = lambda sgt = self.suggestions[0]: self.sendSG(sgt))
-                self.suggestion3.configure(text = self.suggestions[2], command = lambda sgt = self.suggestions[2]: self.sendSG(sgt))
-            
-    def sendSG(self, sg):
+            self.suggestions = next_word((self.content.split()[-2].lower(), self.content.split()[-1].lower()))
+        print(f"self.suggestions = {self.suggestions}")
+        return self.suggestions
+    
+    def updateSGButton(self, sglist):
+        '''Update the suggestion buttons label'''
+        if sglist == None or len(sglist) < 1:
+            self.clearSG()
+            print('Cleared the suggestions. sglist = ' + str(sglist))
+        else:
+            self.clearSG()
+            match len(sglist):
+                case 1:
+                    self.suggestion2.configure(text = self.suggestions[0], command = lambda sgt = self.suggestions[0]: self.sendSG(sgt))
+                    print('SG1: ' + self.suggestions[0])
+                case 2:
+                    self.suggestion1.configure(text = self.suggestions[0], command = lambda sgt = self.suggestions[0]: self.sendSG(sgt))
+                    self.suggestion2.configure(text = self.suggestions[1], command = lambda sgt = self.suggestions[1]: self.sendSG(sgt))
+                    print('SG1: ' + self.suggestions[0])
+                    print('SG2: ' + self.suggestions[1])
+                case 3:
+                    self.suggestion1.configure(text = self.suggestions[0], command = lambda sgt = self.suggestions[0]: self.sendSG(sgt))
+                    self.suggestion2.configure(text = self.suggestions[1], command = lambda sgt = self.suggestions[1]: self.sendSG(sgt))
+                    self.suggestion3.configure(text = self.suggestions[2], command = lambda sgt = self.suggestions[2]: self.sendSG(sgt))
+                    print('SG1: ' + self.suggestions[0])
+                    print('SG2: ' + self.suggestions[1])
+                    print('SG3: ' + self.suggestions[2])
+        
+    def sendSG(self, sgst):
+        '''Send the suggestion into the text box'''
         self.textbox.focus_set()
-        if self.textbox.get(1.0, "end-1c")[-1] != ' ':
-            self.bucket = ' ' + sg + ' '
-        else:
-            self.bucket = sg + ' '
-        keyboard.write(self.bucket)
-        self.getSG()
-    # function to press and release keys
+        keyboard.write(f"{sgst} ")
+        self.updateSGButton(self.getSG(sgst))
+    ##-----------------------------------------------------------------------------------------------
     def vpresskey(self, x):
+        '''function to press and release keys'''
         self.textbox.focus_set()
         keyboard.send(x)
-        self.getSG()
+        if x == "spacebar":
+            self.updateSGButton(self.getSG())
+        else:
+            self.clearSG()
+        
 
         if not self.spl_key_pressed:
             self.rel_shifts()
