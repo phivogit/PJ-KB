@@ -21,6 +21,9 @@ class VKeyboard:
         self.bgColor = '#dfe29e'
         self.suggestionsColor1 = '#dfffbd' 
         self.suggestionsColor2 = '#f2bdff'
+        self.sgColorN = "#90b859"
+        self.sgColorM = "#7ab824"
+        self.sgColorD = "#545454"
         
         self.root = root
         self.root.configure(bg=self.bgColor)
@@ -124,9 +127,9 @@ class VKeyboard:
         for i in range(3):
             frameSuggestions.columnconfigure(i, weight=1)
         self.suggestionHeight = 3
-        self.suggestion1 = Button(frameSuggestions, bg = self.suggestionsColor2, text = ' ', height = self.suggestionHeight)
-        self.suggestion2 = Button(frameSuggestions, bg = self.suggestionsColor2, text = ' ', height = self.suggestionHeight)
-        self.suggestion3 = Button(frameSuggestions, bg = self.suggestionsColor2, text = ' ', height = self.suggestionHeight)
+        self.suggestion1 = Button(frameSuggestions, state="disabled", bg = self.sgColorD, text = ' ', height = self.suggestionHeight)
+        self.suggestion2 = Button(frameSuggestions, state="disabled", bg = self.sgColorD, text = ' ', height = self.suggestionHeight)
+        self.suggestion3 = Button(frameSuggestions, state="disabled", bg = self.sgColorD, text = ' ', height = self.suggestionHeight)
         
         self.suggestion1.grid(row = 0, column = 0, sticky = 'nsew')
         self.suggestion2.grid(row = 0, column = 1, sticky = 'nsew')
@@ -649,9 +652,9 @@ class VKeyboard:
     
     def clearSG(self):
         '''Clear The suggestions from the buttons. Takes no parameter'''
-        self.suggestion1.configure(text = '', command = self.doNothing)
-        self.suggestion2.configure(text = '', command = self.doNothing)
-        self.suggestion3.configure(text = '', command = self.doNothing)
+        self.suggestion1.configure(text = '', bg=self.sgColorD, command = self.doNothing, state="disabled")
+        self.suggestion2.configure(text = '', bg=self.sgColorD, command = self.doNothing, state="disabled")
+        self.suggestion3.configure(text = '', bg=self.sgColorD, command = self.doNothing, state="disabled")
     
     def getSG(self, lastSG = ''):
         '''Return the suggestions list. Example: ['am', 'living', 'study']'''
@@ -667,27 +670,20 @@ class VKeyboard:
     
     def updateSGButton(self, sglist):
         '''Update the suggestion buttons label'''
-        if sglist == None or len(sglist) < 1:
+        if sglist == None or len(sglist) < 1 or sglist[0] == "END":
             self.clearSG()
-            print('Cleared the suggestions. sglist = ' + str(sglist))
         else:
             self.clearSG()
             match len(sglist):
                 case 1:
-                    self.suggestion2.configure(text = self.suggestions[0], command = lambda sgt = self.suggestions[0]: self.sendSG(sgt))
-                    print('SG1: ' + self.suggestions[0])
+                    self.suggestion2.configure(text = self.suggestions[0], state="normal", bg = self.sgColorM, command = lambda sgt = self.suggestions[0]: self.sendSG(sgt))
                 case 2:
-                    self.suggestion1.configure(text = self.suggestions[0], command = lambda sgt = self.suggestions[0]: self.sendSG(sgt))
-                    self.suggestion2.configure(text = self.suggestions[1], command = lambda sgt = self.suggestions[1]: self.sendSG(sgt))
-                    print('SG1: ' + self.suggestions[0])
-                    print('SG2: ' + self.suggestions[1])
+                    self.suggestion1.configure(text = self.suggestions[0], state="normal", bg = self.sgColorN, command = lambda sgt = self.suggestions[0]: self.sendSG(sgt))
+                    self.suggestion2.configure(text = self.suggestions[1], state="normal", bg = self.sgColorM, command = lambda sgt = self.suggestions[1]: self.sendSG(sgt))
                 case 3:
-                    self.suggestion1.configure(text = self.suggestions[0], command = lambda sgt = self.suggestions[0]: self.sendSG(sgt))
-                    self.suggestion2.configure(text = self.suggestions[1], command = lambda sgt = self.suggestions[1]: self.sendSG(sgt))
-                    self.suggestion3.configure(text = self.suggestions[2], command = lambda sgt = self.suggestions[2]: self.sendSG(sgt))
-                    print('SG1: ' + self.suggestions[0])
-                    print('SG2: ' + self.suggestions[1])
-                    print('SG3: ' + self.suggestions[2])
+                    self.suggestion1.configure(text = self.suggestions[0], state="normal", bg = self.sgColorN, command = lambda sgt = self.suggestions[0]: self.sendSG(sgt))
+                    self.suggestion2.configure(text = self.suggestions[1], state="normal", bg = self.sgColorM, command = lambda sgt = self.suggestions[1]: self.sendSG(sgt))
+                    self.suggestion3.configure(text = self.suggestions[2], state="normal", bg = self.sgColorN, command = lambda sgt = self.suggestions[2]: self.sendSG(sgt))
         
     def sendSG(self, sgst):
         '''Send the suggestion into the text box'''
