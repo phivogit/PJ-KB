@@ -9,5 +9,6 @@ else: #send a tuple
     last_suggestion = next_word((tkns[-2].lower(), tkns[-1].lower()))
     print(last_suggestion, end='  ')
     
-content = 'in'
-print(f"content tuple: {tuple(content.split())}")
+content = 'ahahah. I \n am'
+
+print(f"content: '{content[content.rfind('.')+1:]}' \n Done!")

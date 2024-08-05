@@ -656,11 +656,21 @@ class VKeyboard:
         self.suggestion2.configure(text = '', bg=self.sgColorD, command = self.doNothing, state="disabled")
         self.suggestion3.configure(text = '', bg=self.sgColorD, command = self.doNothing, state="disabled")
     
+    def removePrevSentence(self, str):
+        '''Remove the previous sentence (using the last 3 indexes of the tuple)
+        Returns a string'''
+        if str.find('.') == -1:
+            return str
+        else:
+            return str[str.rfind('.')+1:].strip()
+            
+
     def getSG(self, lastSG = ''):
         '''Return the suggestions list. Example: ['am', 'living', 'study']'''
         print(f"LastSG: {lastSG}")
         self.content = self.textbox.get(1.0, "end-1c").rstrip() + ' ' + lastSG 
-        print(f"content: {self.content}")
+        self.content = self.removePrevSentence(self.content)
+        print(f"Evaluating content: {self.content}")
         if len(self.content.split()) < 2:
             self.suggestions = next_word(self.content.lower().rstrip())
         else:
